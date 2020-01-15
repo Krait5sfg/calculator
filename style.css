@@ -1,11 +1,17 @@
-.digit, .operate {
+.item {
     width: 40px;
     height: 40px;
     border: 1px solid lightgray;
     display: inline-block;
     text-align: center;
-    vertical-align: middle;
-    margin: 2px 0;
+    /* margin: 2px 0; */
+    font-size: large; 
+    position: relative;
+    outline: none;
+}
+.active:hover {
+    background-color: cornflowerblue;
+    color: white;
 }
 .display {
     width: 100%;
@@ -14,10 +20,16 @@
 }
 .calculator {
     width: fit-content;
-    height: 100%;
+    height: auto;
     padding: 10px;
     border: 1px solid lightgray;
 }
-.hide {
-    visibility: hidden;
+.calc, .disp {
+    position: absolute;
+    top: 50%;
+    left: 38%;
+    transform: translate(0, -50%);
+}
+.disp {
+    right: 10%;
 }

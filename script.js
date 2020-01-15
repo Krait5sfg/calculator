@@ -1,3 +1,5 @@
+'use strict';
+
 //add function
 function add(number1, number2) {
     return number1 + number2;
@@ -20,68 +22,76 @@ function operate(operator, number1, number2) {
     return result;
 }
 
-//get digit number
-const digitNode = document.querySelectorAll('.digit');
-//get operator number
-const operNode = document.querySelectorAll('.operate');
-//array for saving numbers pressed on calculator
-let numberArray = [];
-//array for saving operation name
-let operationArray = [];
-//variable for reuslt
-let result = 0;
-//get a display
-const disp = document.querySelector('.display');
-//display number
-digitNode.forEach(element => {
-    element.addEventListener('click', (event) => {
-        disp.textContent += element.getAttribute('data-info');
-    });
-});
-//function on operator
-operNode.forEach(element => {
-    element.addEventListener('click', (event) => {
-        switch (element.getAttribute('data-info')) {
-            case 'clear':
-                numberArray = [];
-                operationArray = [];
-                disp.textContent = '';
-                break;
-            case 'add':
-            case 'divide':
-            case 'subtract':
-            case 'multiply':
-                numberArray.push(Math.abs(disp.textContent)); //save number not string
-                operationArray.push(element.getAttribute('data-info'));
-                disp.textContent = '';
-                break;
-            case 'equal':
-                numberArray.push(Math.abs(disp.textContent));//save number not string
-                //calculate (2 numbers)
-                if (numberArray.length == 2 && operationArray.length == 1) {
-                    operationArray.forEach(element => {
-                        if (element == 'add') {
-                            disp.textContent = operate(add, ...numberArray);
-                        } else if (element == 'multiply') {
-                            disp.textContent = operate(multiply, ...numberArray);
-                        } else if (element == 'subtract') {
-                            disp.textContent = operate(subtract, ...numberArray);
-                        } else if (element == 'divide') {
-                            disp.textContent = operate(divide, ...numberArray);
-                        }
-                    });
-                }
-                //calculate greater than 2 numbers
-                if (numberArray.length > 2 && operationArray.length > 1) {
-                    //..code here
-                }
-                //reset on zero after the end calculation
-                numberArray = [];
-                operationArray = [];
-                console.log(result);
+//get item
+const itemNode = document.querySelectorAll('.item');
+//get display
+const disp = itemNode[0].lastChild;
+//array for operation log
+let log = [];
 
+itemNode.forEach(element => {
+    element.addEventListener('click', function (event) {
+        let dataElement = element.getAttribute('data-info');
+
+        if (disp.textContent == 'error') {
+            disp.textContent = '';
         }
 
-        console.log('numberArray: ', numberArray, 'operationArray: ', operationArray);
+        if (dataElement.length == 1 && (log.length == 0 || log[log.length] != 'add' || log[log.length] != 'subtract' || log[log.length] != 'divide' || log[log.length] != 'subtract')) {
+            disp.textContent += dataElement;
+        } else if (dataElement == 'clear') {
+            disp.textContent = '';
+            log = [];
+        } else if (disp.textContent.length > 0 && (dataElement == 'add' || dataElement == 'multiply' || dataElement == 'subtract' || dataElement == 'divide')) {
+            log.push(disp.textContent, dataElement);
+            disp.textContent = '';
+        } else if (dataElement == 'equal' && disp.textContent.length > 0 && log.length >= 2) {
+            log.push(disp.textContent);
+            disp.textContent = '';
+
+            let numbers = []; //for numbers
+            let operations = []; //for operations (+, - , *, /)
+            //sort numbers and operatins
+            for (let i = 0; i < log.length; i++) {
+                if (i == 0 || i % 2 == 0) {
+                    numbers.push(Math.abs(log[i]));
+                } else {
+                    operations.push(log[i]);
+                }
+            }
+            //calculation
+            operations.forEach(function (element) {
+                switch (element) {
+                    case 'add':
+                        numbers.unshift(operate(add, ...numbers.splice(0, 2)));
+                        break;
+                    case 'subtract':
+                        numbers.unshift(operate(subtract, ...numbers.splice(0, 2)));
+                        break;
+                    case 'divide':
+                        numbers.unshift(operate(divide, ...numbers.splice(0, 2)));
+                        break;
+                    case 'multiply':
+                        numbers.unshift(operate(multiply, ...numbers.splice(0, 2)));
+                        break;
+                }
+            });
+
+            //result
+            if (numbers[0] != 'Infinity') {
+                disp.textContent = numbers[0];
+                log = [];
+            } else {
+                disp.textContent = 'error';
+                log = [];
+            }
+
+        } else {
+            disp.textContent = 'error';
+            log = [];
+        }
+
+        // console.log(log);
+
     });
 });
